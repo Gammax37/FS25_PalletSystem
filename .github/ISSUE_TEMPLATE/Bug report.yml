@@ -50,7 +50,7 @@ body:
       description: >-
         Liste des mods actifs, en particulier celui qui fournit le fillType
         EMPTYPALLET (indispensable pour reproduire la plupart des bugs).
-      placeholder: "ex. FS25_PaletteVideMaker, FS25_ProductionStorageControl..."
+      placeholder: "ex. FS25_emptyPallets..."
     validations:
       required: true
 
@@ -75,13 +75,6 @@ body:
         - label: Le bâtiment concerné est désactivé individuellement (psToggleSpawner)
 
   - type: textarea
-    id: expected
-    attributes:
-      label: Comportement attendu
-    validations:
-      required: true
-
-  - type: textarea
     id: actual
     attributes:
       label: Comportement observé
@@ -97,7 +90,7 @@ body:
         2. ...
         3. ...
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: log
@@ -106,6 +99,7 @@ body:
       description: >-
         Colle les lignes pertinentes, idéalement celles contenant
         "PalletSystem" ou "PS-".
+        Ou alors joins ton log dans les PJ
       render: shell
     validations:
       required: false
