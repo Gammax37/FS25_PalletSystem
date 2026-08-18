@@ -1,0 +1,118 @@
+# Checklist de test — FS25_PalletSystem
+
+Basée sur le code source `PalletSystem.lua` / `PalletSystemRefund.lua` présent dans le projet (état analysé au 13/08/2026, mod toujours en version bêta).
+
+> ⚠️ **Point important avant de tester** : la remise sur le prix de production (demandée dans le cahier des charges) **n'est pas encore implémentée**. Le fichier contient seulement un bloc de diagnostic temporaire (`ProductionPoint:updateInfo`) qui affiche en console la structure de `production` pour trouver le bon champ de coût. Il n'y a donc rien à tester côté "remise de prix" pour l'instant — voir section 12.
+
+## 1. Prérequis avant de commencer les tests
+
+- [ ] Avoir un mod "fabricant de palettes vides" installé et chargé, qui définit bien le fillType `EMPTYPALLET` (sinon le mod ne peut rien bloquer, cf. section 3)
+- [ ] Tester une partie avec `EMPTYPALLET` **absent** (mod fabricant désactivé) pour vérifier le comportement de repli (aucun blocage, aucune erreur en console)
+- [ ] Avoir au moins une usine (ProductionPoint) et un bâtiment animaux (Husbandry) sur la sauvegarde de test
+- [ ] Avoir au moins 2 fermes (multi-fermes) pour les tests de farmId
+- [ ] Idéalement une session multijoueur (host + 1 client) en plus du solo
+
+## 2. Mécanique de base — obligation de palette vide
+
+- [ ] Avec le réglage "usines" activé et une palette-conteneur d'EMPTYPALLET pleine posée sur la zone de spawn : la production consomme bien 1 unité d'EMPTYPALLET et fait spawn le produit normalement
+- [ ] Idem pour un bâtiment animaux (laine, œufs, miel...)
+- [ ] Sans palette-conteneur d'EMPTYPALLET dans la zone : la production est bloquée, aucun produit ne spawn
+- [ ] La notification in-game "Palette vide requise pour produire : X" s'affiche une seule fois, pas de spam à chaque tentative tant que le problème n'est pas résolu
+- [ ] Une fois qu'une palette-conteneur d'EMPTYPALLET est livrée sur la zone, la production reprend automatiquement (pas besoin de recharger/rentrer dans le bâtiment)
+- [ ] Vérifier que c'est bien 1 unité qui est consommée par palette produite (pas plus, pas moins) — regarder le fillLevel avant/après
+- [ ] Tester avec une usine qui a plusieurs fillTypes de sortie (ex. plusieurs recettes) : la bonne zone de spawn (`fillTypeToSpawnPlaces`) est bien vérifiée pour chaque fillType, pas mélangée
+- [ ] Tester avec plusieurs zones de spawn sur le même bâtiment (si applicable) : le scan `overlapBox` détecte bien la palette-conteneur quelle que soit sa position/rotation dans la zone
+- [ ] Poser la palette-conteneur juste en dehors de la zone de détection : vérifier qu'elle n'est bien pas prise en compte (pas de faux positif) et inversement qu'elle n'est pas ratée si elle est bien dans la zone
+
+## 3. Réglages globaux (par type) et valeurs par défaut
+
+- [ ] Sur une sauvegarde neuve, les deux réglages sont bien désactivés par défaut (comportement vanilla tant qu'on n'a rien activé)
+- [ ] Activer "Usines" seul : seules les usines sont concernées, les bâtiments animaux continuent de spawn librement
+- [ ] Activer "Animaux" seul : l'inverse
+- [ ] Activer les deux : tout est concerné
+- [ ] Désactiver un des deux en cours de partie : les bâtiments du type concerné repassent immédiatement en mode libre (sans reload)
+
+## 4. Désactivation individuelle par bâtiment (`psToggleSpawner`)
+
+- [ ] `psList` affiche bien tous les bâtiments détectés, avec numéro, nom, type (usine/animaux), ferme, et état réel
+- [ ] `psList <farmId>` filtre correctement par ferme
+- [ ] `psToggleSpawner <numero>` désactive/active un bâtiment précis indépendamment du réglage global de son type
+- [ ] Un bâtiment désactivé individuellement reste actif dans les autres (pas d'effet de bord sur les bâtiments voisins du même type/fichier)
+- [ ] Vérifier le cas limite : deux bâtiments identiques (même fichier XML) proches l'un de l'autre → chacun garde bien son propre identifiant/numéro et son propre état (pas de confusion entre les deux)
+
+## 5. Détection du type usine vs animaux
+
+- [ ] Le code signale lui-même une incertitude sur la détection husbandry/production (heuristique par mot-clé sur le chemin XML). À vérifier via `psList` sur **tous** les bâtiments animaux du jeu (poulailler, rucher, bergerie, etc.) : sont-ils bien catégorisés "animaux" et pas "usine" par erreur ?
+- [ ] Vérifier aussi quelques usines avec des noms de fichier atypiques, pour être sûr qu'aucune n'est mal catégorisée "animaux"
+
+## 6. Persistance des réglages (sauvegarde/rechargement)
+
+> Rappel d'architecture : les réglages sont écrits dans `modSettings/palletSystem.xml`, **pas** dans le dossier de la sauvegarde (qui est réinitialisé par le jeu à chaque sauvegarde). Les points ci-dessous ont été corrigés en conséquence par rapport à la version précédente de cette checklist.
+
+- [ ] Modifier les réglages (globaux + individuels), sauvegarder, quitter le jeu, recharger la sauvegarde : tout est bien restauré à l'identique
+- [ ] Le fichier `palletSystem.xml` est bien créé dans `modSettings/` (et non dans le dossier de la sauvegarde)
+- [ ] Ouvrir ce fichier XML manuellement : les infos indicatives (nom, type, statut) sont lisibles et cohérentes avec l'état réel en jeu
+- [ ] Ajouter un nouveau bâtiment en cours de partie : il obtient un nouveau numéro qui ne réutilise pas un numéro déjà attribué à un autre bâtiment (même après suppression d'un bâtiment existant)
+- [ ] Détruire/vendre un bâtiment puis recharger : pas d'erreur au chargement à cause d'une entrée orpheline dans le fichier de réglages
+- [ ] Charger une sauvegarde qui n'a jamais eu ce mod (pas de fichier `palletSystem.xml`) : le mod démarre bien avec les valeurs par défaut, sans erreur
+- [ ] Cas limite : appeler une commande console ou charger un bâtiment très tôt, avant que le chemin `modSettings` soit disponible → vérifier qu'il n'y a pas d'écrasement des réglages réels par les valeurs par défaut (le code a une logique de retry, à confirmer en jeu)
+
+## 7. Interface menu (onglet Réglages du jeu)
+
+- [ ] La section "Palettes obligatoires" apparaît bien dans l'onglet Réglages, avec les 2 cases à cocher (Animaux / Usines)
+- [ ] Les cases reflètent bien l'état actuel à l'ouverture du menu
+- [ ] Cocher/décocher depuis le menu modifie bien le comportement en jeu immédiatement, et c'est sauvegardé
+- [ ] Modifier un réglage via commande console (`psToggleHusbandry`/`psToggleProduction`) puis rouvrir l'onglet Réglages : la case reflète bien le changement fait en console
+- [ ] Navigation clavier/manette : les nouvelles cases sont bien accessibles au focus (tab/flèches/joystick), pas de trou dans la navigation
+- [ ] Vérifier que l'ajout de la section ne casse pas la mise en page du reste de l'onglet Réglages (pas de chevauchement, scroll correct)
+- [ ] Tester sur une résolution/UI scale différente si possible
+
+## 8. Commandes console
+
+- [ ] `psToggleHusbandry` (sans argument) bascule l'état ; `psToggleHusbandry 0` / `1` force l'état
+- [ ] `psToggleProduction` idem
+- [ ] `psToggleSpawner <numero>` sans argument bascule ; avec `0`/`1` force l'état
+- [ ] `psToggleSpawner` avec un numéro inexistant renvoie un message d'erreur clair, sans crash
+- [ ] `psList` sans argument liste tout, toutes fermes confondues
+- [ ] `psCheckFile` renvoie bien un diagnostic cohérent du fichier `modSettings/palletSystem.xml` (existence, chemin, contenu lisible)
+
+## 9. Multijoueur / autorité serveur
+
+- [ ] Vérifier que la logique de blocage/consommation ne s'exécute bien que côté serveur (host ou dédié), jamais côté client (le code s'appuie sur `g_server`)
+- [ ] En client connecté à un serveur dédié : la notification de blocage s'affiche bien correctement au bon joueur
+- [ ] Tester avec 2 fermes différentes en multijoueur : le blocage d'une ferme n'affecte pas l'autre, et le `farmId` résolu via `placeables.xml` est correct pour chaque bâtiment
+- [ ] Vérifier qu'un client ne peut pas contourner l'obligation (ex. spawn manuel) en l'absence de validation serveur
+
+## 10. Compatibilité FS25_ProductionStorageControl (PSC)
+
+- [ ] Sans PSC installé : le mod fonctionne normalement, le bloc de compatibilité ne s'active pas (message "compatibilité PSC activée" absent du log)
+- [ ] Avec PSC installé : le spawn manuel de palette via PSC respecte bien l'obligation de palette vide
+- [ ] Demander plusieurs unités en un seul spawn manuel PSC avec un stock d'EMPTYPALLET insuffisant : vérifier le spawn partiel (seul le nombre "achievable" est produit, pas d'erreur)
+- [ ] Avec stock d'EMPTYPALLET à 0 via PSC : rien ne spawn, notification affichée, pas d'appel à la fonction d'origine
+- [ ] Vérifier avec les types de palettes concernés (1 standard, 4/5 plants d'arbres, 6 spécifique) et confirmer que les balles (types 2/3) ne sont bien jamais concernées par l'obligation
+
+## 11. Notifications in-game
+
+- [ ] Le texte par défaut (fallback) s'affiche correctement si la clé de traduction `ps_ingameNotification_palletRequired` n'existe pas dans `modDesc.xml`
+- [ ] Si une traduction est fournie dans `modDesc.xml`, elle s'affiche bien à la place du texte par défaut
+- [ ] Le nom du produit affiché dans la notification est correct et traduit (pas de nom technique brut)
+- [ ] Vérifier chaque langue déclarée dans le bloc de localisation du `modDesc.xml` : texte correct et cohérent
+
+## 12. Remise sur le prix de production — NON IMPLÉMENTÉ
+
+- [ ] Cette fonctionnalité n'existe pas encore dans le code actuel : seul un hook de diagnostic temporaire sur `ProductionPoint:updateInfo` existe pour inspecter la structure `productions` et trouver le bon champ de coût
+- [ ] Action de test à faire : lancer une partie avec ce diagnostic actif, ouvrir le panneau d'info d'une usine (pour déclencher `updateInfo`), et récupérer le contenu affiché en console (`[PS-cost-debug] ...`) pour identifier le champ de coût exploitable — c'est un prérequis au développement de la remise, pas un test de la remise elle-même
+- [ ] Une fois la remise implémentée dans une version ultérieure, prévoir de compléter cette section avec : remise correctement appliquée uniquement quand l'obligation est active pour ce bâtiment, remise visible dans l'UI de coût de production, pas de remise si le bâtiment est individuellement désactivé, etc.
+
+## 13. Robustesse / cas limites
+
+- [ ] Grand nombre de bâtiments sur une même sauvegarde (map avec beaucoup d'usines/élevages) : pas de ralentissement notable, surtout avec les réglages désactivés (le code doit sortir tôt via `isRequirementActiveFor`)
+- [ ] Bâtiment dont la position n'est pas retrouvée dans `placeables.xml` (ex. mod mal packagé) : `farmId` reste `nil` sans crash, affiché "inconnue" dans `psList`
+- [ ] Vérifier qu'aucune erreur Lua n'apparaît dans le log (`log.txt`) sur une session de jeu complète (chargement, production, sauvegarde, quitter)
+- [ ] Vérifier le comportement si deux mods définissent chacun un fillType nommé différemment mais que le joueur croit que EMPTYPALLET est fourni (message clair si le fillType manque, pas de blocage silencieux incompréhensible)
+
+## 14. Avant publication
+
+- [ ] Retirer (ou désactiver proprement) le bloc "DIAGNOSTIC TEMPORAIRE" une fois le champ de coût identifié, pour ne pas spammer les logs en version finale
+- [ ] Relire les textes affichés au joueur (menu + notifications) pour la cohérence et l'orthographe
+- [ ] Vérifier la compatibilité avec une sauvegarde qui a déjà tourné avec une version antérieure du mod (montée de version sans perte de réglages)
