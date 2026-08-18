@@ -1,44 +1,45 @@
-name: "Rapport de bug"
-description: "Signaler un problème avec FS25_PalletSystem"
+name: "Rapport de bug / Bug report"
+description: "Signaler un problème avec FS25_PalletSystem / Report an issue with FS25_PalletSystem"
 title: "[Bug] "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Merci de prendre le temps de remplir ce rapport ! Plus les informations
-        sont précises, plus vite le bug pourra être identifié et corrigé.
+        **FR** — Merci de prendre le temps de remplir ce rapport ! Plus les informations sont précises, plus vite le bug pourra être identifié et corrigé. Tu peux répondre en français ou en anglais.
+
+        **EN** — Thanks for taking the time to fill out this report! The more precise the information, the faster the bug can be identified and fixed. You can answer in French or English.
 
   - type: dropdown
     id: zone
     attributes:
-      label: Zone concernée
-      description: Quelle partie du mod est touchée par le bug ?
+      label: "Zone concernée / Affected area"
+      description: "FR : Quelle partie du mod est touchée par le bug ? / EN: Which part of the mod is affected?"
       options:
-        - Usine (ProductionPoint)
-        - Bâtiment animaux (Husbandry)
-        - Menu Réglages en jeu
-        - Commandes console
-        - Compatibilité FS25_ProductionStorageControl (PSC)
-        - Système de remboursement / rebate
-        - Persistance des réglages (sauvegarde/rechargement)
-        - Autre
+        - "Usine (ProductionPoint) / Production building (ProductionPoint)"
+        - "Bâtiment animaux (Husbandry) / Animal husbandry building"
+        - "Menu Réglages en jeu / In-game Settings menu"
+        - "Commandes console / Console commands"
+        - "Compatibilité FS25_ProductionStorageControl (PSC) / FS25_ProductionStorageControl (PSC) compatibility"
+        - "Système de remboursement / rebate / Refund / rebate system"
+        - "Persistance des réglages (sauvegarde/rechargement) / Settings persistence (save/reload)"
+        - "Autre / Other"
     validations:
       required: true
 
   - type: input
     id: mod-version
     attributes:
-      label: Version du mod
-      description: Numéro de version, tag, ou hash de commit si tu l'as compilé toi-même
-      placeholder: "ex. 1.2.0 ou commit a1b2c3d"
+      label: "Version du mod / Mod version"
+      description: "Numéro de version, tag, ou hash de commit / Version number, tag, or commit hash"
+      placeholder: "ex. 1.2.0 or commit a1b2c3d"
     validations:
       required: false
 
   - type: input
     id: game-version
     attributes:
-      label: Version de Farming Simulator 25
+      label: "Version de Farming Simulator 25 / Farming Simulator 25 version"
       placeholder: "ex. 1.4.0.0"
     validations:
       required: true
@@ -46,10 +47,12 @@ body:
   - type: textarea
     id: other-mods
     attributes:
-      label: Autres mods installés
+      label: "Autres mods installés / Other installed mods"
       description: >-
-        Liste des mods actifs, en particulier celui qui fournit le fillType
+        FR : Liste des mods actifs, en particulier celui qui fournit le fillType
         EMPTYPALLET (indispensable pour reproduire la plupart des bugs).
+        EN: List of active mods, especially the one providing the EMPTYPALLET
+        fillType (needed to reproduce most bugs).
       placeholder: "ex. FS25_emptyPallets..."
     validations:
       required: true
@@ -57,34 +60,34 @@ body:
   - type: dropdown
     id: game-mode
     attributes:
-      label: Mode de jeu
+      label: "Mode de jeu / Game mode"
       options:
-        - Solo
-        - Multijoueur - hôte
-        - Multijoueur - client connecté à un serveur dédié
+        - "Solo / Singleplayer"
+        - "Multijoueur - hôte / Multiplayer - host"
+        - "Multijoueur - client sur serveur dédié / Multiplayer - client on dedicated server"
     validations:
       required: true
 
   - type: checkboxes
     id: settings-state
     attributes:
-      label: Réglages actifs au moment du bug
+      label: "Réglages actifs au moment du bug / Active settings when the bug occurred"
       options:
-        - label: Obligation "Animaux" activée
-        - label: Obligation "Usines" activée
-        - label: Le bâtiment concerné est désactivé individuellement (psToggleSpawner)
+        - label: "Obligation \"Animaux\" activée / \"Husbandry\" requirement enabled"
+        - label: "Obligation \"Usines\" activée / \"Production\" requirement enabled"
+        - label: "Bâtiment désactivé individuellement (psToggleSpawner) / Building individually disabled (psToggleSpawner)"
 
   - type: textarea
     id: actual
     attributes:
-      label: Comportement observé
+      label: "Comportement observé / Actual behavior"
     validations:
       required: true
 
   - type: textarea
     id: steps
     attributes:
-      label: Étapes pour reproduire
+      label: "Étapes pour reproduire / Steps to reproduce"
       placeholder: |
         1. ...
         2. ...
@@ -95,11 +98,11 @@ body:
   - type: textarea
     id: log
     attributes:
-      label: Extrait du log.txt
+      label: "Extrait du log.txt / log.txt excerpt"
       description: >-
-        Colle les lignes pertinentes, idéalement celles contenant
-        "PalletSystem" ou "PS-".
-        Ou alors joins ton log dans les PJ
+        FR : Colle les lignes pertinentes, idéalement celles contenant "PalletSystem"
+        ou "PS-". EN: Paste the relevant lines, ideally those containing
+        "PalletSystem" or "PS-".
       render: shell
     validations:
       required: false
@@ -107,8 +110,8 @@ body:
   - type: textarea
     id: pslist
     attributes:
-      label: Sortie de psList
-      description: Si pertinent, colle le résultat de la commande console psList.
+      label: "Sortie de psList / psList output"
+      description: "FR : Si pertinent, colle le résultat de la commande console psList. / EN: If relevant, paste the output of the psList console command."
       render: shell
     validations:
       required: false
@@ -116,14 +119,14 @@ body:
   - type: textarea
     id: additional
     attributes:
-      label: Informations complémentaires
+      label: "Informations complémentaires / Additional information"
     validations:
       required: false
 
   - type: checkboxes
     id: checklist
     attributes:
-      label: Vérifications
+      label: "Vérifications / Checklist"
       options:
-        - label: "J'ai vérifié qu'aucune issue existante ne décrit déjà ce problème"
+        - label: "J'ai vérifié qu'aucune issue existante ne décrit déjà ce problème / I've checked that no existing issue already describes this problem"
           required: true
