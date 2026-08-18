@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<modDesc descVersion="111">
+    <author>Gammax37</author>
+    <version>1.0.0.0</version>
+
+    <title>
+        <en>Pallet System</en>
+        <fr>Système de palettes</fr>
+    </title>
+
+    <description>
+        <en><![CDATA[Productions and animal husbandries no longer spawn full pallets out of thin air. You must supply empty pallets (via the EMPTYPALLET fillType, delivered as a stacked container pallet) at the existing pallet spawn location. No empty pallet available = production is blocked until you deliver more.]]></en>
+        <fr><![CDATA[Les usines et les batiments d'animaux ne font plus apparaitre de palettes pleines par magie. Il faut fournir des palettes vides (fillType EMPTYPALLET, livre via une palette-conteneur) a l'emplacement de spawn existant. Sans palette vide disponible, la production est bloquee jusqu'a livraison.]]></fr>
+		<de><![CDATA[Produktions- und Tierhaltungsbetriebe erzeugen keine vollen Paletten mehr aus dem Nichts. Sie müssen am vorhandenen Paletten-Spawn-Punkt leere Paletten bereitstellen (über den Fülltyp „EMPTYPALLET“, geliefert als gestapelte Container-Palette). Sind keine Leerpaletten verfügbar, wird die Produktion blockiert, bis Sie Nachschub liefern.]]></de>
+    </description>
+
+    <iconFilename>icon_palletSystem.dds</iconFilename>
+
+    <multiplayer supported="true" />
+
+    <extraSourceFiles>
+        <sourceFile filename="scripts/palletSystem.lua" />
+        <!--<sourceFile filename="scripts/palletSystemRefund.lua" />-->
+    </extraSourceFiles>
+	
+	<dependencies>
+		<dependency>FS25_emptyPallets</dependency>
+	</dependencies>
+	
+	<l10n>
+		<text name="ps_ingameNotification_palletRequired" >
+			<en>Empty pallet required to produce : %s</en>
+			<de>Für die Produktion wird eine Leerpalette benötigt : %s</de>
+			<fr>Palette vide requise pour produire : %s</fr>
+		</text>
+	</l10n>
+
+    <storeItems>
+    </storeItems>
+</modDesc>
