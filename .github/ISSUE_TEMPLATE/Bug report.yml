@@ -1,16 +1,39 @@
-name: "🐛 Rapport de bug"
-description: "Signaler un problème rencontré avec FS25_PalletSystem"
+name: "Rapport de bug"
+description: "Signaler un problème avec FS25_PalletSystem"
 title: "[Bug] "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Merci de prendre le temps de remonter ce bug. Avant de continuer,
-        vérifie rapidement dans le README la section "Roadmap / travaux en
-        cours" : certains comportements (système de remboursement, migration
-        de sauvegarde, remise de coût) sont encore en développement et déjà
-        connus comme incomplets.
+        Merci de prendre le temps de remplir ce rapport ! Plus les informations
+        sont précises, plus vite le bug pourra être identifié et corrigé.
+
+  - type: dropdown
+    id: zone
+    attributes:
+      label: Zone concernée
+      description: Quelle partie du mod est touchée par le bug ?
+      options:
+        - Usine (ProductionPoint)
+        - Bâtiment animaux (Husbandry)
+        - Menu Réglages en jeu
+        - Commandes console
+        - Compatibilité FS25_ProductionStorageControl (PSC)
+        - Système de remboursement / rebate
+        - Persistance des réglages (sauvegarde/rechargement)
+        - Autre
+    validations:
+      required: true
+
+  - type: input
+    id: mod-version
+    attributes:
+      label: Version du mod
+      description: Numéro de version, tag, ou hash de commit si tu l'as compilé toi-même
+      placeholder: "ex. 1.2.0 ou commit a1b2c3d"
+    validations:
+      required: false
 
   - type: input
     id: game-version
@@ -20,68 +43,36 @@ body:
     validations:
       required: true
 
-  - type: input
-    id: mod-version
+  - type: textarea
+    id: other-mods
     attributes:
-      label: Version de FS25_PalletSystem
-      description: Numéro de release, tag, ou date/commit si compilé depuis le dépôt
-      placeholder: "ex. v1.2.0"
-    validations:
-      required: true
-
-  - type: input
-    id: emptypallet-mod
-    attributes:
-      label: Mod fournissant le fillType EMPTYPALLET
-      description: Nom et version du mod "fabricant" de palettes vides utilisé
-      placeholder: "ex. FS25_EmptyPalletPack v1.0"
+      label: Autres mods installés
+      description: >-
+        Liste des mods actifs, en particulier celui qui fournit le fillType
+        EMPTYPALLET (indispensable pour reproduire la plupart des bugs).
+      placeholder: "ex. FS25_PaletteVideMaker, FS25_ProductionStorageControl..."
     validations:
       required: true
 
   - type: dropdown
-    id: building-type
-    attributes:
-      label: Type de bâtiment concerné
-      options:
-        - Usine (ProductionPoint)
-        - Bâtiment animaux (Husbandry)
-        - Les deux
-        - Non applicable / autre
-    validations:
-      required: true
-
-  - type: checkboxes
-    id: active-settings
-    attributes:
-      label: Réglages actifs au moment du bug
-      options:
-        - label: Obligation "Usines" activée
-        - label: Obligation "Animaux" activée
-        - label: Bâtiment concerné désactivé individuellement (psToggleSpawner)
-        - label: FS25_ProductionStorageControl (PSC) installé et actif
-
-  - type: dropdown
-    id: session-type
+    id: game-mode
     attributes:
       label: Mode de jeu
       options:
         - Solo
-        - Multijoueur — hôte
-        - Multijoueur — client
-    validations:
-      required: false
-
-  - type: textarea
-    id: repro-steps
-    attributes:
-      label: Étapes pour reproduire
-      description: Liste numérotée, la plus précise possible
-      placeholder: |
-        1. ...
-        2. ...
-        3. ...
+        - Multijoueur - hôte
+        - Multijoueur - client connecté à un serveur dédié
     validations:
       required: true
+
+  - type: checkboxes
+    id: settings-state
+    attributes:
+      label: Réglages actifs au moment du bug
+      options:
+        - label: Obligation "Animaux" activée
+        - label: Obligation "Usines" activée
+        - label: Le bâtiment concerné est désactivé individuellement (psToggleSpawner)
 
   - type: textarea
     id: expected
@@ -98,20 +89,47 @@ body:
       required: true
 
   - type: textarea
+    id: steps
+    attributes:
+      label: Étapes pour reproduire
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
     id: log
     attributes:
-      label: Extrait pertinent du log.txt
-      description: Colle les lignes autour du problème (recherche "PalletSystem" ou "PS-" dans le fichier)
+      label: Extrait du log.txt
+      description: >-
+        Colle les lignes pertinentes, idéalement celles contenant
+        "PalletSystem" ou "PS-".
       render: shell
     validations:
       required: false
 
-  - type: checkboxes
-    id: confirmations
+  - type: textarea
+    id: pslist
     attributes:
-      label: Avant d'envoyer
+      label: Sortie de psList
+      description: Si pertinent, colle le résultat de la commande console psList.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Informations complémentaires
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Vérifications
       options:
-        - label: J'ai vérifié qu'aucune Issue existante ne décrit déjà ce problème
+        - label: "J'ai vérifié qu'aucune issue existante ne décrit déjà ce problème"
           required: true
-        - label: J'ai testé, si possible, sans autres mods de gameplay pour isoler le problème
-          required: false
